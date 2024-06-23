@@ -14,7 +14,10 @@ from models.database.models import Lessons, Subjects, Groups
 schedules_router = APIRouter(tags=['Schedules'])
 
 
-@schedules_router.get('/lessons')
+@schedules_router.get('/lessons',
+                      responses={
+                          200: {"model": responses.Lessons}
+                      })
 async def get_lessons(groupId: int, startAt: date, endAt: date, session: AsyncSession = Depends(get_session_fastapi)):
     query = select(Lessons.id, Lessons.subjectId, Lessons.lessonDate, Lessons.weekday,
                    Lessons.startAt, Lessons.endAt, Lessons.building, Lessons.classroom,
@@ -25,7 +28,11 @@ async def get_lessons(groupId: int, startAt: date, endAt: date, session: AsyncSe
     return lessons_list
 
 
-@schedules_router.get('/scheduleVersion')
+@schedules_router.get('/scheduleVersion',
+                      responses={
+                          200: {"model": responses.ScheduleVersion,
+                                "description": "В новой версии приложения нужно прокидывать в headers DataVersion"}
+                      })
 async def get_schedule_version(request: Request, groupId: int,
                                session: AsyncSession = Depends(get_session_fastapi)):
     """
@@ -44,7 +51,11 @@ async def get_schedule_version(request: Request, groupId: int,
         return int(schedule_version)
 
 
-@schedules_router.get('/teacherSearch')
+@schedules_router.get('/teacherSearch',
+                      responses={
+                          200: {"model": responses.TeacherLocations,
+                                "description": "При заполнении всех полей кроме search_query"}
+                      })
 async def find_teacher(search_query: Optional[str] = Query(None, alias="searchQuery", description="Поисковой запрос, регистр не важен"),
                        teacher: Optional[str] = Query(None, description="Точное совпадение"),
                        date_from: Optional[date] = Query(None, alias="dateFrom"),

@@ -41,6 +41,17 @@ class UpdateUUID(BaseModel):
     user_id: int
 
 
+class UpdateAvailability(BaseModel):
+    size: int
+    versionCode: int
+    forceUpdateVersions: List[int]
+    downloadUrl: HttpUrl
+
+
+class TeacherSearchQuery(BaseModel):
+    data: List[str]
+
+
 class TeacherLocationPerLesson(BaseModel):
     classroom: str
     building: str
@@ -49,3 +60,40 @@ class TeacherLocationPerLesson(BaseModel):
     startAt: time
     endAt: time
     weekday: int
+
+
+class TeacherLocations(BaseModel):
+    teacher: str
+    data: List[TeacherLocationPerLesson]
+
+
+class Subjects(BaseModel):
+    id: int
+    name: str
+
+
+class Groups(Subjects):  # Одинаковый response
+    pass
+
+
+class Lessons(BaseModel):
+    id: int
+    subjectId: int
+    lessonDate: date
+    weekday: int
+    startAt: time = Field(..., example="12:20:00")
+    endAt: time = Field(..., example="12:20:00")
+    building: str
+    classroom: str
+    isLecture: bool
+    teacher: str
+
+
+class ScheduleVersion(BaseModel):
+    scheduleVersion: int
+    forceUpdateVersion: int
+
+
+class GetDataByTGID(BaseModel):
+    group_id: int
+    group_name: str

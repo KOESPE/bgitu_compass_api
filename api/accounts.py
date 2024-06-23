@@ -26,7 +26,10 @@ def generate_token(token_type: str):
     return ''.join(random.choice(characters) for _ in range(64))
 
 
-@accounts_router.post('/registerGuest')
+@accounts_router.post('/registerGuest',
+                      responses={
+                          200: {"model": responses.RegisterGuest}
+                      })
 async def register_guest(payload: payloads.RegisterGuest,
                          session: AsyncSession = Depends(get_session_fastapi)):
     access_token = generate_token(token_type='access')
@@ -64,7 +67,10 @@ async def register_guest(payload: payloads.RegisterGuest,
     return response_data
 
 
-@accounts_router.post('/registerEosUser')
+@accounts_router.post('/registerEosUser',
+                      responses={
+                          200: {"model": responses.RegisterGuest}
+                      })
 async def register_eos_user(payload: payloads.RegisterEosUser,
                             session: AsyncSession = Depends(get_session_fastapi)):
     eos_group_name = payload.eosGroupName.upper()
@@ -159,7 +165,11 @@ async def register_eos_user(payload: payloads.RegisterEosUser,
     return JSONResponse(content=jsonable_encoder(response_data), status_code=200)
 
 
-@accounts_router.put('/chooseGroup')
+@accounts_router.put('/chooseGroup',
+                     responses={
+                         200: {"description": "Группа подтверждена"},
+                         404: {"description": "Пользователь не найден"}
+                     })
 async def handle_different_eosgroupname(payload: payloads.DifferentEosGroupName,
                                         session: AsyncSession = Depends(get_session_fastapi),
                                         credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -180,7 +190,12 @@ async def handle_different_eosgroupname(payload: payloads.DifferentEosGroupName,
         raise HTTPException(status_code=404)
 
 
-@accounts_router.post('/registerCMT')
+@accounts_router.post('/registerCMT',
+                      responses={
+                          200: {"description": "OK"},
+                          400: {"description": loc('errors', 'no_action')},
+                          404: {"description": loc('errors', 'invalid_token')}
+                      })
 async def register_cmt_token(payload: payloads.CMTokens,
                              credentials: HTTPAuthorizationCredentials = Depends(security),
                              session: AsyncSession = Depends(get_session_fastapi)):
@@ -205,7 +220,11 @@ async def register_cmt_token(payload: payloads.CMTokens,
         raise HTTPException(detail=loc('errors', 'invalid_token'), status_code=404)
 
 
-@accounts_router.get('/')
+@accounts_router.get('/',
+                     responses={
+                         200: {"model": responses.AccountData},
+                         404: {"description": loc('errors', 'invalid_token')}
+                     })
 async def get_account_data(appUUID: Optional[str] = None,
                            credentials: HTTPAuthorizationCredentials = Depends(security),
                            session: AsyncSession = Depends(get_session_fastapi)):
@@ -234,7 +253,11 @@ async def get_account_data(appUUID: Optional[str] = None,
         raise HTTPException(detail=loc('errors', 'invalid_token'), status_code=404)
 
 
-@accounts_router.post('/updateUUID')
+@accounts_router.post('/updateUUID',
+                      responses={
+                          200: {"model": responses.UpdateUUID},
+                          404: {"description": loc('errors', 'invalid_token')}
+                      })
 async def update_uuid(new_appUUID: str,
                       credentials: HTTPAuthorizationCredentials = Depends(security),
                       session: AsyncSession = Depends(get_session_fastapi)

@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse, FileResponse
 
 from api.administration import authenticate_admin
 from config import APK_FILE, CHANGELOGS_DIR, UPDATES_REMOTE_CONFIG
-from models.api import payloads
+from models.api import payloads, responses
 
 updates_router = APIRouter(tags=['App updates'])
 security = HTTPBearer()
@@ -25,7 +25,7 @@ async def upload_new_version(update_file: bytes = Body(media_type="application/o
     return JSONResponse({'detail': 'Upload completed successfully'}, status_code=200)
 
 
-@updates_router.post('/updateRemoteConfig')  # response_model=responses.UpdateAvailability
+@updates_router.post('/updateRemoteConfig')
 async def upload_new_version(payload: payloads.UploadUpdate,
                              auth: HTTPAuthorizationCredentials = Depends(authenticate_admin)):
     async with aiohttp.ClientSession() as session:
@@ -54,7 +54,10 @@ async def upload_new_version(payload: payloads.UploadUpdate,
     return Response(status_code=200)
 
 
-@updates_router.get("/updateAvailability")
+@updates_router.get("/updateAvailability",
+                    responses={
+                        200: {"model": responses.UpdateAvailability}
+                    })
 async def update_availability():
     with open(UPDATES_REMOTE_CONFIG, "r") as f:
         data = json.load(f)
