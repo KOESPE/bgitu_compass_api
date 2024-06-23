@@ -1,0 +1,111 @@
+@font-face {
+    font-family: 'Ermilov';
+    src: url('font/ermilov.otf') format('opentype');
+}  
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+:root {
+    --text-primary: #0B1F33;
+    --container-menu: #f9f9f9;
+}
+
+body {
+    font-family: 'Lato', sans-serif;
+    color: var(--text-primary);
+}
+
+h1 {
+    font-weight: 700;
+    font-size: 32px;
+}
+
+.container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.menu {
+    position: fixed;
+    left: 200px;
+    top: 56px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+    width: 263px;
+    min-height: 500px;
+    background-color: var(--container-menu);
+    margin-bottom: 48px;
+    padding: 16px;
+}
+
+nav {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 56px;
+    border-bottom: solid;
+    border-bottom-color: #dbdbdb;
+    border-width: 1px;
+    z-index: 2;
+    align-items: center;
+    padding-left: 16px;
+    background: rgba(255, 255, 255, 0.71);
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(9.6px);
+    -webkit-backdrop-filter: blur(9.6px);
+}
+
+.compass {
+    font-family: 'Ermilov';
+    font-size: 28px;
+    font-weight: 700;
+    margin-left: 8px;
+    color: #0077FF;
+}
+
+.img-logo {
+    width: 48px;
+    height: 48px;
+}
+
+.menu-spacer {
+    width: 463px;
+}
+
+.nav-spacer {
+    height: 56px;
+}
+
+.markdown-body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 45px;
+}
+
+@media (max-width: 767px) {
+    .markdown-body {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 1417px) {
+    .menu {
+        visibility: hidden;
+    }
+    .menu-horizontal {
+        visibility: visible;
+    }
+    .menu-spacer {
+        width: 0px;
+    }
+}

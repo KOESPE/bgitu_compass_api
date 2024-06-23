@@ -1,0 +1,9 @@
+/.idea/
+/venv/
+/tests/
+/_backups
+/modules/firebase/firebase-auth-token.json
+/data/saved_schedules/*.xlsx
+/data/saved_schedules/
+/.env
+/hidden/
