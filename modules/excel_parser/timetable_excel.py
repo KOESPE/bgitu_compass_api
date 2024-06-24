@@ -1,8 +1,5 @@
 import datetime
 
-import re
-
-
 import openpyxl
 from openpyxl.cell import MergedCell
 from openpyxl.worksheet.worksheet import Worksheet
@@ -33,87 +30,92 @@ async def initialize_excel_schedules(full_reset=False,
 
     if reset_schedules_and_subjects:
         await db_reset_schedules(and_subjects=True)
+
     excel_files = [file for file in EXCEL_DIRECTORY.iterdir() if '.xlsx' in file.name]
 
     for file in excel_files:
         wb = openpyxl.load_workbook(file)
         sheet = wb.worksheets[0]
 
-        # Parsing all groups one by one
-        all_group_columns = sheet.max_column
-        for group_column in range(4, all_group_columns + 1):
-            group_name = parse_cell(sheet=sheet, row=3, col=group_column)
-            if group_name is not None:  # Sometimes we are still getting empty cells despite sheet.max_column
-                group_name = group_name.upper()
-                group_name = group_name.replace(' ', '')  # Unnecessary spaces
-                group_name = group_name.replace('/', '-')  # Да, и такие "нововведения" бывают
+        await process_sheet(sheet)
 
-                if group_name.lower() == 'а' or group_name.lower() == 'б':  # Handling subgroups
-                    """
-                    There is can be magic line break that I can`t handle with .replace \r\n \r \n
-                    # " ИСП(спо)-109-2
-                    # 1"	
-                    """
-                    group_name = (parse_cell(sheet, row=2, col=group_column).split())[0] + f'({group_name})'
-                if 'спо' in group_name.lower():
-                    group_name = group_name.replace('спо', 'СПО')
+    # В контексте нового учебного года это может создавать ошибки
+    if full_reset or reset_schedules or reset_schedules_and_subjects:
+        await weekly_management_schedule()
 
-                group_id = await manage_groups(group_name)
 
-                # Finally got the name of the group, let's fetch schedule
-                schedule_week = {
-                    "first_week": {},
-                    "second_week": {}
-                }
+async def process_sheet(sheet):
+    """Обрабатывает лист Excel и извлекает расписание для каждой группы."""
 
-                # Данные на один день на первую неделю
+    for group_column in range(4, sheet.max_column + 1):
+        group_name = parse_group_name(sheet, group_column)
+        if group_name is None:  # Пустая ячейка
+            continue
+
+        group_id = await manage_groups(group_name)
+
+        schedule_week = await parse_group_schedule(sheet, group_id, group_column)
+        await insert_schedule(group_id, schedule_week)
+
+
+def parse_group_name(sheet, group_column):
+    """Извлекает имя группы из листа Excel."""
+
+    group_name = parse_cell(sheet=sheet, row=3, col=group_column)
+    if group_name is None:
+        return None
+
+    group_name = group_name.upper()
+    group_name = group_name.replace(' ', '')
+    group_name = group_name.replace('/', '-')
+
+    if group_name.lower() in ('а', 'б'):  # Подгруппы
+        group_name = (parse_cell(sheet, row=2, col=group_column).split())[0] + f'({group_name})'
+
+    if 'спо' in group_name.lower():
+        group_name = group_name.replace('спо', 'СПО')
+
+    return group_name
+
+
+async def parse_group_schedule(sheet, group_id, group_column):
+    """Парсит расписание для одной группы."""
+
+    schedule_week = {"first_week": {}, "second_week": {}}
+    schedule_per_day_first_week = []
+    schedule_per_day_second_week = []
+
+    weekday_last = parse_cell(sheet, row=4, col=1)
+    lesson_step = 2
+
+    for group_row in range(4, sheet.max_row + 1, lesson_step):
+        weekday_now = parse_cell(sheet, row=group_row, col=1)
+
+        if weekday_now != weekday_last:
+            schedule_week['second_week'][WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_first_week
+            schedule_week['first_week'][WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_second_week
+
+            if weekday_now:
+                weekday_last = weekday_now
                 schedule_per_day_first_week = []
                 schedule_per_day_second_week = []
 
-                weekday_last = parse_cell(sheet, row=4, col=1)  # Запоминаем последний день недели
+        lesson_first_week = parse_day(sheet, row=group_row, col=group_column)
+        lesson_second_week = parse_day(sheet, row=group_row + 1, col=group_column)
 
-                for group_row in range(4, sheet.max_row + 1, 2):  # Идем вниз по столбцу
-                    weekday_now = parse_cell(sheet, row=group_row, col=1)
+        if lesson_first_week:
+            subject_id = await manage_subjects(lesson_first_week.get('subjectName'), group_id)
+            day_template = make_dict_day(data=lesson_first_week, subject_id=subject_id)
+            schedule_per_day_first_week.append(day_template)
 
-                    # Если вместо "понедельник" в weekday_last получаем, например "вторник" (и не None)
-                    # значит день закончился и пора записать его в словарь с ключем в виде цифры (1,2...)
-                    if weekday_now != weekday_last:  # добавил and weekday_now is not None
-                        # ТУТ ПОМЕНЯЛОСЬ МЕСТАМИ НАМЕРЕНО!!!!!!!!!!!!!!!(приколы второго семестра)
-                        schedule_week['second_week'][
-                            WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_first_week
-                        schedule_week['first_week'][
-                            WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_second_week
+        if lesson_second_week:
+            subject_id = await manage_subjects(lesson_second_week.get('subjectName'), group_id)
+            day_template = make_dict_day(data=lesson_second_week, subject_id=subject_id)
+            schedule_per_day_second_week.append(day_template)
 
-                        if not((weekday_now is None) or (weekday_now == '')):  # Закончилась учебная неделя группы
-                            weekday_last = weekday_now
-                            schedule_per_day_first_week = []  # Данные на один день на первую неделю
-                            schedule_per_day_second_week = []
-
-                    # Занятие на четной и нечетной неделе
-                    lesson_first_week = parse_day(sheet, row=group_row, col=group_column)
-                    lesson_second_week = parse_day(sheet, row=group_row + 1, col=group_column)
-
-                    if lesson_first_week is not None:
-                        subject_id = await manage_subjects(lesson_first_week.get('subjectName'), group_id)
-                        day_template = make_dict_day(data=lesson_first_week, subject_id=subject_id)
-                        schedule_per_day_first_week.append(day_template)
-
-                    if lesson_second_week is not None:
-                        subject_id = await manage_subjects(lesson_second_week.get('subjectName'), group_id)
-                        day_template = make_dict_day(data=lesson_second_week, subject_id=subject_id)
-                        schedule_per_day_second_week.append(day_template)
-
-                # Закончили парсить группу
-                schedule_week['second_week'][
-                    WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_first_week
-                schedule_week['first_week'][
-                    WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_second_week
-                await insert_schedule(group_id, schedule_week)
-
-            else:  # Группы в файле закончились
-                break
-    if full_reset or reset_schedules or reset_schedules_and_subjects:
-        await weekly_management_schedule()
+    schedule_week['second_week'][WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_first_week
+    schedule_week['first_week'][WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_second_week
+    return schedule_week
 
 
 def parse_cell(sheet: Worksheet, row, col, using_merged=True):
