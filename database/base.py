@@ -115,7 +115,7 @@ async def old_manage_subjects(subject_name, group_id):
             return search_result
 
 
-async def insert_schedule(group_id, schedule, is_forced=False):
+async def insert_schedule(group_id, schedule, is_forced=True):
     async with get_session() as session:
         query = await session.execute(select(Groups).where(Groups.id == group_id))
         group = query.scalar()

@@ -1,11 +1,7 @@
-import asyncio
-import datetime
 import logging
-from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
 from api.accounts import accounts_router
 from api.administration import administration_router

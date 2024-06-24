@@ -7,22 +7,19 @@ from models.database.models import Lessons
 
 async def weekly_management_schedule():
     """
-    Функция из постоянного сырого расписания из бд в json записывает в db.Lesson
+    Из постоянного raw_schedule из бд в json —> db.Lesson
     """
     await clean_schedules()
     all_schedules = await get_raw_schedules()  # select(Groups.id, Groups.rawSchedule)
     for group in all_schedules:
-        up_schedule_version_key = False
 
-        json_schedule: dict = group.rawSchedule  # dict
+        json_schedule: dict = group.rawSchedule
         today_date = datetime.date.today()
         for week in range(-2, 4):
             current_date = today_date + datetime.timedelta(weeks=week)
             monday_date = current_date - datetime.timedelta(days=(today_date.weekday()) % 7)
             if not await is_schedule_filled(group_id=group[0], monday_date=monday_date):
-                if not up_schedule_version_key:
-                    await up_schedule_version(group.id)
-                    update_schedule_version_key = True
+                await up_schedule_version(group.id)  # Чтобы приложение обновило расписание
 
                 current_week_number = int(current_date.strftime("%V"))
                 monday_date = datetime.datetime.strptime(f'{current_date.year} {current_week_number} 1',
@@ -45,8 +42,6 @@ async def weekly_management_schedule():
                                              teacher=lesson.get("teacher")
                                              )
                         await insert_lesson(new_lesson)
-
-
 
 
 if __name__ == '__main__':

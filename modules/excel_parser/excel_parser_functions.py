@@ -12,40 +12,10 @@ def make_dict_day(data, subject_id):
     return template
 
 
-def find_classroom(value_list: list):
-    """
-    [[classrooms], [classroom_indexes]]
-    @param value_list
-    """
-    # смотрим, сколько цифр можно сделать интом
-    # если два/одно число, то возвращаем это число строкой
-    # если ноль, то просто берем последний элемент в строке, таким образом точно получаем кабинет
-    isdigit_counter = 0
-    classrooms = []
-    classroom_indexes = []
-
-    for value in value_list:
-        # бывает 123 / 456, а ситуацию 123/456 обработает алгоритм дальше
-        if value == '/':
-            slash_index = value_list.index(value)
-            classrooms.append(value_list[slash_index - 1] + '/' + value_list[slash_index + 1])
-            classroom_indexes.append(slash_index - 1)
-            return [classrooms, classroom_indexes]
-
-    for value in value_list:
-        if value.isdigit():
-            isdigit_counter += 1
-            classroom_indexes.append(value_list.index(value))
-            classrooms.append(value)
-
-    if isdigit_counter > 0:
-        return [classrooms, classroom_indexes]
-    else:  # Возврщается последнее
-        return [[value_list[-1]], [value_list.index(value_list[-1])]]
-
-
 def extract_numbers(str_list: list):
     """
+    find_classroom func in the past
+
     Returns 'classrooms' and 'str_list_no_classrooms'
     """
     # Регулярное выражение для поиска чисел
@@ -75,11 +45,6 @@ def extract_numbers(str_list: list):
         fixed_numbers = "/".join(numbers)
         fixed_numbers = fixed_numbers.replace("//", "/")
         numbers = [fixed_numbers]
-
-    # Заплатка на получение classroom вида "1С/ДОТ"
-    # if len(numbers) > 0:
-    #     if 'ДОТ' in numbers[0]:
-    #         numbers = ['ДОТ']
 
     return {'classrooms': numbers,
             'str_list_no_classrooms': str_list_saved}
