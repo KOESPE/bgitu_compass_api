@@ -1,4 +1,5 @@
 import datetime
+import re
 
 import openpyxl
 from openpyxl.cell import MergedCell
@@ -36,10 +37,11 @@ async def initialize_excel_schedules(full_reset=False,
     for file in excel_files:
         wb = openpyxl.load_workbook(file)
         sheet = wb.worksheets[0]
+        if 'маг' in file.name.lower():
+            await process_magistracy(sheet)
+        else:  # БАК и СПО
+            await process_sheet(sheet)
 
-        await process_sheet(sheet)
-
-    # В контексте нового учебного года это может создавать ошибки
     if full_reset or reset_schedules or reset_schedules_and_subjects:
         await weekly_management_schedule()
 
@@ -76,6 +78,101 @@ def parse_group_name(sheet, group_column):
         group_name = group_name.replace('спо', 'СПО')
 
     return group_name
+
+
+async def find_group_information(sheet):
+    """
+    Находит название группы, номер строки, где начинается расписание и наличие подгрупп в файле.
+    """
+    building_row = 0
+    group_name = ''
+    is_subgroups = False
+
+    for row in range(1, 20):
+        value = parse_cell(sheet, row, col=2)
+        if value is not None:
+            match = re.search(r"группа\s+(\w+-\d+)", value)
+            if match:
+                group_name = match.group(1)
+
+            if 'корпус' in value:
+                building_row = row
+                break
+
+    if group_name == '':
+        value = parse_cell(sheet, row=building_row, col=4)
+        split_string = value.casefold().split(' ')
+        group_index = split_string.index("группа")
+        group_name = split_string[group_index + 1]
+        is_subgroups = True
+        building_row += 1
+
+    groups_id = []
+    if is_subgroups:
+        groups_id.append(await manage_groups(f'{group_name}(А)(маг.)'))
+        groups_id.append(await manage_groups(f'{group_name}(Б)(маг.)'))
+    else:
+        groups_id.append(await manage_groups(f'{group_name}(маг.)'))
+
+    return building_row, group_name, is_subgroups, groups_id
+
+
+async def process_magistracy(sheet):
+    building_row, group_name, is_subgroups, groups_id = find_group_information(sheet)
+
+    groups_range_in_file = 2 if is_subgroups else 1  # Есть в одном файле группы А и Б, их нужно итерировать
+    for additional_index in range(groups_range_in_file):
+        schedule_week = {
+            "first_week": {},
+            "second_week": {}
+        }
+        schedule_per_day_first_week = []
+        schedule_per_day_second_week = []
+
+        weekday_last = 'пятница'  # Первый день расписания всегда
+
+        # Перебираем ячейки
+        lesson_step = 2 if is_subgroups else 1  # Исключение: у строителей с группами две ячейки на урок
+        for group_row in range(building_row, sheet.max_row + 1, lesson_step):
+            # Идем по строчкам вниз и берем сразу на первую и вторую неделю если not is_subgroups
+            weekday_now = parse_cell(sheet, row=group_row, col=1)
+
+            if weekday_now not in ['пятница', 'суббота']:  # Еще не дошли до учебных дней
+                continue
+            if weekday_now == '' or weekday_now is None:
+                break
+            if weekday_now != weekday_last:  # Смена дней
+                schedule_week['second_week'][
+                    WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_first_week
+                schedule_week['first_week'][
+                    WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_second_week
+
+                weekday_last = weekday_now
+                schedule_per_day_first_week = []  # Данные на один день на первую неделю
+                schedule_per_day_second_week = []
+
+            if is_subgroups:
+                lesson_first_week = parse_day(sheet, row=group_row, col=4 + additional_index)
+                lesson_second_week = lesson_first_week
+            else:
+                lesson_first_week = parse_day(sheet, row=group_row, col=4)
+                lesson_second_week = parse_day(sheet, row=group_row, col=5)
+
+            if lesson_first_week is not None:
+                subject_id = await manage_subjects(lesson_first_week.get('subjectName'), groups_id[additional_index])
+                day_template = make_dict_day(data=lesson_first_week, subject_id=subject_id)
+                schedule_per_day_first_week.append(day_template)
+
+            if lesson_second_week is not None:
+                subject_id = await manage_subjects(lesson_second_week.get('subjectName'), groups_id[additional_index])
+                day_template = make_dict_day(data=lesson_second_week, subject_id=subject_id)
+                schedule_per_day_second_week.append(day_template)
+        # Закончили парсить группу и заносим последние данные
+        schedule_week['second_week'][
+            WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_first_week
+        schedule_week['first_week'][
+            WEEKDAY_INDEX[weekday_last.lower()]] = schedule_per_day_second_week
+        await insert_schedule(groups_id[additional_index], schedule_week)
 
 
 async def parse_group_schedule(sheet, group_id, group_column):
