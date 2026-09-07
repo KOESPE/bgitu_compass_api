@@ -73,12 +73,26 @@ async def insert_schedule(group_id, schedule):
     async with get_session() as session:
         query = await session.execute(select(Groups).where(Groups.id == group_id))
         group = query.scalar()
+
+        schedule = normalize_schedule_keys(schedule)
         if group.rawSchedule != schedule:
             group.rawSchedule = schedule
             group.scheduleUpdateDate = datetime.now(timezone.utc).timestamp()
 
             session.add(group)
             await session.commit()
+
+
+def normalize_schedule_keys(schedule):
+    """
+    Цель: правильное сравнение в функции insert_schedule + не подвергать "опытам" бота и приложение.
+    Приводит ключи дней недели к строкам, как они приходят из базы после JSON-сериализации.
+    """
+    for week_name, days in list(schedule.items()):
+        schedule[week_name] = {str(day): lessons for day, lessons in days.items()}
+        for day in range(1, 7):
+            schedule[week_name].setdefault(str(day), [])
+    return schedule
 
 
 @asynccontextmanager
