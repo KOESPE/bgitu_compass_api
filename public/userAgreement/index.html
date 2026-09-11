@@ -1,152 +1,218 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Пользовательское соглашение — БГИТУ Компас</title>
-    <link rel="icon" type="image/png" href="/userAgreement/logo/favicon-96x96.png" sizes="96x96"/>
-    <link rel="icon" type="image/svg+xml" href="/userAgreement/logo/favicon.svg"/>
-    <link rel="shortcut icon" href="/userAgreement/logo/favicon.ico"/>
-    <link rel="apple-touch-icon" sizes="180x180" href="/userAgreement/logo/apple-touch-icon.png"/>
-    <meta name="apple-mobile-web-app-title" content="Компас"/>
-    <link rel="manifest" href="/userAgreement/logo/site.webmanifest"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&family=Inter:wght@400;700&display=swap"
-          rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', 'Arimo', sans-serif;
-            background-color: #ffffff;
-            color: #333;
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 800px;
-            padding: 40px 20px;
-            box-sizing: border-box;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .logo {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 10px;
-        }
-        h1 {
-            font-weight: bold;
-            font-size: 22px;
-            margin-bottom: 30px;
-            text-align: center;
-            line-height: 1.3;
-        }
-        h2 {
-            font-weight: bold;
-            font-size: 18px;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            color: #111;
-        }
-        p {
-            margin-bottom: 10px;
-            text-align: justify;
-            margin-left: 20px; 
-        }
-        ul {
-            list-style-type: disc;
-            padding-left: 40px; 
-            margin-top: 5px;
-            margin-bottom: 15px;
-        }
-        li {
-            margin-bottom: 5px;
-        }
-        .sub-label {
-            margin-top: 15px;
-            display: block;
-            font-weight: bold;
-            margin-left: 20px; 
-        }
-    </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light"/>
+  <title>Политика конфиденциальности — БГИТУ Компас</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400..700&display=swap"
+        rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #202124;
+      --muted: #5f6368;
+      --content-width: 900px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Google Sans", "Google Sans Flex", Arial, sans-serif;
+      font-size: 18px;
+      line-height: 1.48;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    main {
+      width: min(calc(100% - 48px), var(--content-width));
+      margin: 0 auto;
+      padding: 48px 0 64px;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: 24px;
+      line-height: 1.25;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+
+    .updated {
+      margin: 0 0 18px;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .updated em {
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    section {
+      margin-top: 14px;
+    }
+
+    h2 {
+      margin: 0 0 2px;
+      font-size: 18px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    section p + p {
+      margin-top: 12px;
+    }
+
+    .email {
+      color: #1a73e8;
+      text-decoration: none;
+    }
+
+    .email:hover {
+      text-decoration: underline;
+    }
+
+    ul {
+      margin: 12px 0 0;
+      padding-left: 42px;
+    }
+
+    li {
+      margin: 0 0 12px;
+      padding-left: 2px;
+    }
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      font-weight: 700;
+    }
+
+    a {
+      color: inherit;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        font-size: 16px;
+      }
+
+      main {
+        width: min(calc(100% - 32px), var(--content-width));
+        padding: 32px 0 48px;
+      }
+
+      h1 {
+        font-size: 21px;
+      }
+
+      h2,
+      .updated {
+        font-size: 16px;
+      }
+
+      ul {
+        padding-left: 30px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div class="container">
-    <header>
-        <img src="/userAgreement/logo/favicon.svg" alt="БГИТУ Компас" class="logo">
-    </header>
+<main>
+  <h1>Политика конфиденциальности мобильного приложения «БГИТУ Компас»</h1>
 
-    <main>
-        <h1>Пользовательское соглашение<br> и политика конфиденциальности «БГИТУ Компас»</h1>
+  <p class="updated"><em>Дата последнего обновления 10 сентября 2026 г.</em></p>
 
-        <section>
-            <h2>1. Общие положения</h2>
-            <p>1.1. Настоящее соглашение регулирует отношения между Пользователем и разработчиками сервисов «БГИТУ
-                Компас» (далее – Сервисы), включающих мобильное приложение и телеграм-бот @bgitu_compass_bot.</p>
-            <p>1.2. Используя Сервисы, Пользователь подтверждает свое полное согласие с условиями настоящего
-                соглашения.</p>
-        </section>
+  <section>
+    <h2>1. Общие положения</h2>
+    <p>
+      Настоящая Политика конфиденциальности устанавливает порядок обработки и защиты
+      информации при использовании мобильного приложения «БГИТУ Компас» для
+      операционных систем Android и iOS.
+    </p>
+  </section>
 
-        <section>
-            <h2>2. Назначение и функционал</h2>
-            <p>2.1. Сервисы разработаны для предоставления студентам БГИТУ актуальной информации о расписании
-                занятий.</p>
-            <p>2.2. Функционал Сервисов:</p>
+  <section>
+    <h2>2. Персональные данные</h2>
+    <p>
+      Для использования Приложения регистрация не требуется. Пользователю не требуется
+      создавать учетную запись или предоставлять имя, адрес электронной почты, пароль
+      либо иные персональные данные.
+    </p>
+    <p>
+      Выбор учебной группы осуществляется без идентификации пользователя. Сведения
+      о выбранной группе сохраняются локально на устройстве и не используются для
+      установления личности пользователя.
+    </p>
+    <p>
+      Приложение не осуществляет сбор, хранение или передачу третьим лицам
+      персональных данных пользователей.
+    </p>
+  </section>
 
-            <span class="sub-label">Мобильное приложение:</span>
-            <ul>
-                <li>Просмотр расписания по группам</li>
-                <li>Поиск расписания преподавателей</li>
-                <li>Просмотр общего расписания</li>
-            </ul>
+  <section>
+    <h2>3. Технические данные и сведения о сбоях</h2>
+    <p>
+      В целях обеспечения стабильной работы и устранения программных ошибок могут
+      обрабатываться обезличенные технические сведения о работе Приложения и возникающих сбоях.
+    </p>
+    <p>
+      Такие сведения могут включать модель устройства, версию операционной системы,
+      время возникновения сбоя и технические сведения об ошибке. Указанные данные
+      используются исключительно для диагностики и устранения неисправностей и не
+      предназначены для идентификации пользователя.
+    </p>
+  </section>
 
-            <span class="sub-label">Телеграм-бот:</span>
-            <ul>
-                <li>Просмотр расписания по группам</li>
-                <li>Поиск расписания преподавателей</li>
-            </ul>
+  <section>
+    <h2>4. Системные разрешения</h2>
+    <p>
+      Приложение использует только системные возможности и разрешения, необходимые
+      для его работы, в том числе для подключения к сети Интернет, получения и
+      отображения актуального расписания.
+    </p>
+  </section>
 
-            <p>2.3. Официальные каналы распространения: приложение на bgitu-compass.ru, бот @bgitu_compass_bot.</p>
-        </section>
+  <section>
+    <h2>5. Изменение Политики конфиденциальности</h2>
+    <p>
+      Настоящая Политика конфиденциальности может быть изменена или дополнена.
+      Актуальная редакция Политики конфиденциальности размещается на этой странице
+      и применяется с даты ее опубликования, если иное не предусмотрено новой редакцией.
+    </p>
+  </section>
 
-        <section>
-            <h2>3. Политика конфиденциальности</h2>
-            <p>3.1. Сервисы не осуществляют сбор персональных данных Пользователей.</p>
-            <p>3.2. В Сервисах не предусмотрена регистрация или авторизация пользователей.</p>
-            <p>3.3. Все данные о расписании являются общедоступной информацией, полученной из открытых источников.</p>
-        </section>
-
-        <section>
-            <h2>4. Ответственность сторон</h2>
-            <p>4.1. Разработчики Сервисов не несут ответственности за:</p>
-            <ul>
-                <li>Точность и актуальность данных расписания</li>
-                <li>Технические сбои в работе парсера</li>
-                <li>Некорректное отображение информации</li>
-            </ul>
-            <p>4.2. Пользователь самостоятельно несет ответственность за использование информации.</p>
-        </section>
-
-        <section>
-            <h2>5. Изменения условий</h2>
-            <p>5.1. Разработчики вправе вносить изменения в настоящее соглашение.</p>
-            <p>5.2. Новая редакция вступает в силу с момента ее публикации.</p>
-        </section>
-
-        <section>
-            <h2>6. Заключительные положения</h2>
-            <p>6.1. Составлено в соответствии с законодательством РФ.</p>
-            <p>6.2. Споры разрешаются в соответствии с законодательством РФ.</p>
-            <p>6.3. Настоящее соглашение является публичной офертой.</p>
-        </section>
-    </main>
-</div>
+  <section>
+    <h2>6. Контактная информация</h2>
+    <p>
+      По вопросам, связанным с работой Приложения и настоящей Политикой
+      конфиденциальности, вы можете обратиться по электронной почте
+      <a class="email" href="mailto:injent@vk.com">injent@vk.com</a>.
+    </p>
+  </section>
+</main>
 </body>
 </html>
